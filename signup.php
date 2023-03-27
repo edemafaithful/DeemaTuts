@@ -1,100 +1,101 @@
-<?php 
-    require "inc/header.php";
-    require_once "inc/db_connect.php";
+<?php
+require 'inc/header.php';
+require_once 'inc/db_connect.php';
 
-
-    //To check if the form is Submitted
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
-        function test_input($data) {
-            $data = trim($data);
-            $data = stripslashes($data);
-            $data = htmlspecialchars($data, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-            return $data;
-        }
-
-        // recieve data from form
-        $username = $_POST['username'];
-        $email = $_POST['email'];
-        $password = $_POST['password'];
-        $confirm_password = $_POST['confirm-password'];
-
-        $success_message = "";
-        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-
-                        
-        // Validate username
-        $errors = [];
-        if (empty($_POST['username'])) {
-            $errors[] = 'Username is required';
-        } else {
-            $username = test_input($_POST['username']);
-            // Check if username only contains letters and numbers
-            if (!preg_match("/^[a-zA-Z0-9]*$/",$username)) {
-            $errors[] = 'Only letters and numbers are allowed in the username';            
-            }
-        }
-        
-        // Validate email
-        if (empty($_POST['email'])) {
-            $errors[] = 'Email is required';
-        } else {
-            $email = test_input($_POST['email']);
-            // Check if email is valid
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors[] = 'Invalid email format';
-            }
-        }
-        
-        // Validate password
-        if (empty($_POST['password'])) {
-            $errors[] = 'Password is required';
-        } else {
-            $password = test_input($_POST['password']);
-            // Check if password contains at least one uppercase letter, one lowercase letter, and one number
-            if (!preg_match("/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/",$password)) {
-            $errors[] = 'Password must contain at least one uppercase letter, one lowercase letter, and one number and be at least 8 characters long';
-            }
-        }
-        
-        // Validate confirm password
-        if (empty($_POST['confirm-password'])) {
-            $errors[] = 'Confirm password is required';
-        } else {
-            $confirm_password = test_input($_POST['confirm-password']);
-            // Check if confirm password matches password
-            if ($confirm_password != $password) {
-                $errors[] = 'Confirm password must match password';
-            }
-        }
-
-        if(empty($errors)){
-            
-            // Prepare SQL statement to insert user data
-            $sql = 'INSERT INTO users (username, email, password) VALUES (:username, :email, :password)';
-            $stmt = $conn->prepare($sql);
-            // bind parameters
-            $stmt->bindParam(':username', $username);
-            $stmt->bindParam(':email', $email);
-            $stmt->bindParam(':password', $hashed_password);
-            
-            if($stmt->execute()){
-                usleep(3000000);
-                $success_message = "User Added Successfully";
-                header("Location: login.php");
-                
-                
-            }
-        }else{
-            // foreach ($errors as $error) {
-            //     echo $error . '<br>';
-            // }
-            
-        }
-    
+//To check if the form is Submitted
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    function test_input($data)
+    {
+        $data = trim($data);
+        $data = stripslashes($data);
+        $data = htmlspecialchars($data, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        return $data;
     }
 
- ?>
+    // recieve data from form
+    $username = $_POST['username'];
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+    $confirm_password = $_POST['confirm-password'];
+
+    $success_message = '';
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+    // Validate username
+    $errors = [];
+    if (empty($_POST['username'])) {
+        $errors[] = 'Username is required';
+    } else {
+        $username = test_input($_POST['username']);
+        // Check if username only contains letters and numbers
+        if (!preg_match('/^[a-zA-Z0-9]*$/', $username)) {
+            $errors[] = 'Only letters and numbers are allowed in the username';
+        }
+    }
+
+    // Validate email
+    if (empty($_POST['email'])) {
+        $errors[] = 'Email is required';
+    } else {
+        $email = test_input($_POST['email']);
+        // Check if email is valid
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = 'Invalid email format';
+        }
+    }
+
+    // Validate password
+    if (empty($_POST['password'])) {
+        $errors[] = 'Password is required';
+    } else {
+        $password = test_input($_POST['password']);
+        // Check if password contains at least one uppercase letter, one lowercase letter, and one number
+
+        // reg rexpression was corrected
+        if (
+            !preg_match(
+                '^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$^',
+                $password
+            )
+        ) {
+            $errors[] =
+                'Password must contain at least one uppercase letter, one lowercase letter, and one number and be at least 8 characters long';
+        }
+    }
+
+    // Validate confirm password
+    if (empty($_POST['confirm-password'])) {
+        $errors[] = 'Confirm password is required';
+    } else {
+        $confirm_password = test_input($_POST['confirm-password']);
+        // Check if confirm password matches password
+        if ($confirm_password != $password) {
+            $errors[] = 'Confirm password must match password';
+        }
+    }
+
+    if (empty($errors)) {
+        // Prepare SQL statement to insert user data
+        $sql =
+            'INSERT INTO users (username, email, password) VALUES (:username, :email, :password)';
+        $stmt = $conn->prepare($sql);
+        // bind parameters
+        $stmt->bindParam(':username', $username);
+        $stmt->bindParam(':email', $email);
+        $stmt->bindParam(':password', $hashed_password);
+
+        if ($stmt->execute()) {
+            usleep(3000000);
+            $success_message = 'User Added Successfully';
+            header('Location: login.php');
+        }
+    } else {
+        // foreach ($errors as $error) {
+        //     echo $error . '<br>';
+        // }
+    }
+}
+?>
 
 <body class="bg-gray-100">
     <div class="min-h-screen flex justify-center items-center">

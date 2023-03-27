@@ -1,67 +1,59 @@
 <?php
 
-    require "inc/header.php";
-    require "inc/db_connect.php";
+require 'inc/header.php';
+require 'inc/db_connect.php';
 
-    // define variables and set to empty values
+// define variables and set to empty values
 
-    if ($_SERVER['REQUEST_METHOD'] == 'POST')  {
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Get the input values from the form
+    $identifier = trim($_POST['identifier']);
+    $password = trim($_POST['password']);
 
-       
-        // Get the input values from the form
-        $identifier = trim($_POST['identifier']);
-        $password = trim($_POST['password']);
+    // Validate email
+    if (empty($identifier)) {
+        $errors[] = 'Email or Username is required';
+    }
 
-        // Validate email
-        if (empty($identifier)) {
-            $errors[] = 'Email or Username is required';
-        } 
+    // Validate password
+    if (empty($password)) {
+        $errors[] = 'Password is required';
+    }
 
-        // Validate password
-        if (empty($password)) {
-            $errors[] = 'Password is required';
-        } 
+    if (empty($errors)) {
+        // prepare Sql statement
+        $sql =
+            'SELECT * FROM users WHERE username = :identifier OR email = :identifier LIMIT 1';
+        $stmt = $conn->prepare($sql);
 
-        if(empty($errors)) {     
-            
-            // prepare Sql statement
-            $sql = "SELECT * FROM users WHERE username = :identifier OR email = :identifier LIMIT 1";
-            $stmt = $conn->prepare($sql);
-    
-            //bind parameters to sql statements
-            $stmt->bindParam(':identifier', $identifier);
-            $stmt->execute();
-    
-            // if ($stmt->rowCount() > 0) {
-    
-                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        //bind parameters to sql statements
+        $stmt->bindParam(':identifier', $identifier);
+        $stmt->execute();
 
+        // if ($stmt->rowCount() > 0) {
 
-                if($row){
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                    if(password_verify($password, $row['password'])){
-        
-                        // password correct? log in user
-                        session_start();
-                        $_SESSION['user_id'] = $row['id'];
-                        $_SESSION['email'] = $row['email'];
-                        $_SESSION['username'] = $row['username'];
-                        
-                        header('Location: home.php');
-                        exit;
-                    }else{
-                        $error = "Invalid email/username or password.";
-                    }
-                }
-                
-                
-            //   } else {
-            //     $error = "Invalid email/username or password.";
-            //   }
+        if ($row) {
+            if (password_verify($password, $row['password'])) {
+                // password correct? log in user
+                session_start();
+                $_SESSION['user_id'] = $row['id'];
+                $_SESSION['email'] = $row['email'];
+                $_SESSION['username'] = $row['username'];
+                header('Location: home.php');
+                exit();
+            } else {
+                $error = 'Invalid email/username or password.';
+            }
         }
-
-    }    
- ?>
+        // you need to uncomment this line in your branch
+        else {
+            $error = 'Invalid email/username or password.';
+        }
+    }
+}
+?>
 
 <div class=" min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
   <div class="max-w-md w-full space-y-8">
@@ -79,7 +71,9 @@
 
         <?php if (isset($_SESSION['username'])): ?>
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-                You have successfully logged in as <?php echo $_SESSION['username']; ?>.
+                You have successfully logged in as <?php echo $_SESSION[
+                    'username'
+                ]; ?>.
             </div>
         <?php endif; ?>
         <form class="mt-8 space-y-6" method="POST">
@@ -133,7 +127,5 @@
 
 </script>
 
-<?php
-    include "inc/footer.php";
- ?>
+<?php include 'inc/footer.php'; ?>
 
