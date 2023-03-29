@@ -32,13 +32,14 @@
             $stmt->bindParam(':identifier', $identifier);
             $stmt->execute();
     
-            // if ($stmt->rowCount() > 0) {
     
                 $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
+                
+                // $test = "Gaddiel1";
+                // $test2 = "$2y$10$tcKGHDIMsW3D/8/6H4HlW.uSC2sGe6MrRXfxkHmuYNw";
+                //var_dump(password_verify($test, $test2));
 
                 if($row){
-
                     if(password_verify($password, $row['password'])){
         
                         // password correct? log in user
@@ -53,11 +54,7 @@
                         $error = "Invalid email/username or password.";
                     }
                 }
-                
-                
-            //   } else {
-            //     $error = "Invalid email/username or password.";
-            //   }
+            
         }
 
     }    
@@ -109,11 +106,6 @@
                         </a>
                     </div>
             </div>
-            <?php if (isset($_SESSION['username'])): ?>
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-                     Logging in...
-                </div>
-            <?php endif; ?>
 
 
             <div class="flex items-center justify-between">

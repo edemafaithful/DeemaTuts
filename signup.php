@@ -20,8 +20,6 @@
         $confirm_password = $_POST['confirm-password'];
 
         $success_message = "";
-        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-
                         
         // Validate username
         $errors = [];
@@ -52,7 +50,7 @@
         } else {
             $password = test_input($_POST['password']);
             // Check if password contains at least one uppercase letter, one lowercase letter, and one number
-            if (!preg_match("/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/",$password)) {
+            if (!preg_match("/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/",$password)) {
             $errors[] = 'Password must contain at least one uppercase letter, one lowercase letter, and one number and be at least 8 characters long';
             }
         }
@@ -65,6 +63,8 @@
             // Check if confirm password matches password
             if ($confirm_password != $password) {
                 $errors[] = 'Confirm password must match password';
+            }else{
+                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
             }
         }
 
@@ -79,7 +79,7 @@
             $stmt->bindParam(':password', $hashed_password);
             
             if($stmt->execute()){
-                usleep(3000000);
+                //usleep(3000000);
                 $success_message = "User Added Successfully";
                 header("Location: login.php");
                 
