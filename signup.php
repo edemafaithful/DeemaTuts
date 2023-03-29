@@ -1,6 +1,7 @@
 <?php 
     require "inc/header.php";
     require_once "inc/db_connect.php";
+    # code update
 
 
     //To check if the form is Submitted
